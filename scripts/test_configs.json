@@ -1,0 +1,45 @@
+{
+  "test_settings": {
+    "skip_frames": 5,
+    "conf_threshold": 0.5,
+    "iou_threshold": 0.5,
+    "max_frames": 300,
+    "filter_faces": true,
+    "randomize_order": false
+  },
+  "tracker_configs": {
+    "bytetrack_default": {
+      "class": "ByteTrack",
+      "name": "ByteTrack-Default",
+      "params": {},
+      "description": "ByteTrack with default parameters (motion-only tracking)"
+    },
+    "botsort_default": {
+      "class": "BotSort",
+      "name": "BotSort-Default",
+      "params": {
+        "reid_weights": "auto",
+        "device": "auto",
+        "half": false
+      },
+      "description": "BotSort with default ReID settings"
+    },
+    "deepocsort_default": {
+      "class": "DeepOcSort",
+      "name": "DeepOcSort-Default",
+      "params": {
+        "reid_weights": "auto",
+        "device": "auto",
+        "half": false
+      },
+      "description": "DeepOcSort with default parameters"
+    }
+  },
+  "parameter_descriptions": {
+    "skip_frames": "Process every Nth frame (5 = every 5th frame for speed)",
+    "conf_threshold": "Detection confidence threshold (0.5 = balanced)",
+    "max_frames": "Limit total frames for quick testing (300 = ~10 seconds)",
+    "filter_faces": "Only track persons, filter out faces",
+    "randomize_order": "Randomize test order for fairness (false for predictable testing)"
+  }
+} 

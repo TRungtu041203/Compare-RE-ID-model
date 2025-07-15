@@ -1,0 +1,120 @@
+{
+  "test_settings": {
+    "skip_frames": 3,
+    "conf_threshold": 0.4,
+    "iou_threshold": 0.5,
+    "max_frames": null,
+    "filter_faces": true,
+    "randomize_order": true
+  },
+  "tracker_configs": {
+    "bytetrack_aggressive": {
+      "class": "ByteTrack", 
+      "name": "ByteTrack-Aggressive",
+      "params": {
+        "track_thresh": 0.5,
+        "min_conf": 0.1,
+        "track_buffer": 300,
+        "match_thresh": 0.8
+      },
+      "description": "ByteTrack with aggressive tracking parameters"
+    },
+    "botsort_strict": {
+      "class": "BotSort",
+      "name": "BotSort-Strict",
+      "params": {
+        "reid_weights": "auto", 
+        "device": "auto",
+        "half": false,
+        "proximity_thresh": 0.5,
+        "appearance_thresh": 0.25,
+        "track_high_thresh": 0.6,
+        "track_low_thresh": 0.1,
+        "new_track_thresh": 0.6,
+        "track_buffer": 300,
+        "match_thresh": 0.8,
+        "fuse_first_associate": false,
+        "with_reid": true
+      },
+      "description": "BotSort with strict matching thresholds"
+    },
+    "botsort_loose": {
+      "class": "BotSort",
+      "name": "BotSort-Loose",
+      "params": {
+        "reid_weights": "auto",
+        "device": "auto", 
+        "half": false,
+        "track_high_thresh": 0.6,
+        "track_low_thresh": 0.1,
+        "new_track_thresh": 0.25,
+        "track_buffer": 300,
+        "match_thresh": 0.6,
+        "proximity_thresh": 0.7,
+        "appearance_thresh": 0.15,
+        "fuse_first_associate": false,
+        "cmc_method": "None",
+        "with_reid": true
+      },
+      "description": "BotSort with loose matching for crowded scenes"
+    },
+    "deepocsort_strict": {
+      "class": "DeepOcSort", 
+      "name": "DeepOcSort-Strict",
+      "params": {
+        "reid_weights": "auto",
+        "device": "auto",
+        "half": false,
+        "det_thresh": 0.5,
+        "max_age": 300,
+        "inertia": 0.4,
+        "cmc_off": true
+      },
+      "description": "DeepOcSort with strict association"
+    },
+    "boosttrack_default": {
+      "class": "BoostTrack",
+      "name": "BoostTrack-Default", 
+      "params": {
+        "reid_weights": "auto",
+        "device": "auto",
+        "half": false
+      },
+      "description": "BoostTrack with default parameters"
+    },
+    "boosttrack_optimized": {
+      "class": "BoostTrack",
+      "name": "BoostTrack-Optimized",
+      "params": {
+        "reid_weights": "auto",
+        "device": "auto",
+        "half": false,
+        "max_age": 300,
+        "inertia": 0.4,
+        "use_ecc": false,
+        "cmc_method": "None",
+        "min_hits": 3
+      },
+      "description": "BoostTrack with optimized parameters for accuracy"
+    }
+  },
+  "parameter_descriptions": {
+    "match_thresh": "Threshold for matching tracks between frames (0.0-1.0). Higher = stricter matching",
+    "track_thresh": "Confidence threshold for creating new tracks (0.0-1.0)",
+    "track_buffer": "Number of frames to keep lost tracks before deletion",
+    "proximity_thresh": "Distance threshold for spatial association (0.0-1.0)", 
+    "appearance_thresh": "ReID appearance similarity threshold (0.0-1.0)",
+    "half": "Use half precision (FP16) for faster inference on GPU",
+    "reid_weights": "Path to ReID model weights file",
+    "device": "Device to run tracker on (e.g. cuda, cpu)",
+    "det_thresh": "Detection confidence threshold for considering detections (0.0-1.0)",
+    "max_age": "Maximum number of frames to keep track alive without matching",
+    "min_hits": "Minimum number of detections before track is initialized",
+    "inertia": "Motion model weight for position prediction (0.0-1.0)",
+    "use_ecc": "Whether to use ECC (Enhanced Correlation Coefficient) for motion estimation",
+    "cmc_method": "Camera Motion Compensation method (None, ECC, or Sparse)",
+    "cmc_off": "Whether to disable Camera Motion Compensation",
+    "fuse_first_associate": "Whether to fuse appearance and motion information in first association",
+    "with_reid": "Whether to use ReID features for tracking"
+  }
+} 

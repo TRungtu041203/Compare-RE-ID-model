@@ -1,0 +1,9 @@
+# Ignore weights, videos, and results
+weights/
+*.pt
+*.mp4
+*.avi
+*.mov
+*.jsonl
+results/
+dataset/
