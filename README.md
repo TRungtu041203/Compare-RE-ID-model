@@ -1,6 +1,4 @@
-# Fair MIVOLO Tracking Benchmark
-
-This benchmark system addresses the key issues you raised:
+# Fair MIVOLO Tracking Benchmark on 4 algo: BoTSORT, DeepOCSORT, ByteTrack, BoostTrack
 
 ## 🎯 **Key Features**
 
