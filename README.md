@@ -65,9 +65,17 @@ python fair_mivolo_bench.py --config my_config.json --output-dir ../results/my_t
 ### **tracker_configs**
 ```json
 {
+  "test_settings": {
+    "skip_frames": 1,
+    "conf_threshold": 0.4,
+    "iou_threshold": 0.7,
+    "max_frames": null,
+    "filter_faces": true,
+    "randomize_order": true
+  },
   "tracker_configs": {
     "bytetrack_aggressive": {
-      "class": "ByteTrack",
+      "class": "ByteTrack", 
       "name": "ByteTrack-Aggressive",
       "params": {
         "track_thresh": 0.5,
@@ -81,7 +89,7 @@ python fair_mivolo_bench.py --config my_config.json --output-dir ../results/my_t
       "class": "BotSort",
       "name": "BotSort-Strict",
       "params": {
-        "reid_weights": "auto",
+        "reid_weights": "auto", 
         "device": "auto",
         "half": false,
         "proximity_thresh": 0.5,
@@ -101,7 +109,7 @@ python fair_mivolo_bench.py --config my_config.json --output-dir ../results/my_t
       "name": "BotSort-Loose",
       "params": {
         "reid_weights": "auto",
-        "device": "auto",
+        "device": "auto", 
         "half": false,
         "track_high_thresh": 0.6,
         "track_low_thresh": 0.1,
@@ -111,13 +119,12 @@ python fair_mivolo_bench.py --config my_config.json --output-dir ../results/my_t
         "proximity_thresh": 0.7,
         "appearance_thresh": 0.15,
         "fuse_first_associate": false,
-        "cmc_method": "None",
         "with_reid": true
       },
       "description": "BotSort with loose matching for crowded scenes"
     },
     "deepocsort_strict": {
-      "class": "DeepOcSort",
+      "class": "DeepOcSort", 
       "name": "DeepOcSort-Strict",
       "params": {
         "reid_weights": "auto",
@@ -132,7 +139,7 @@ python fair_mivolo_bench.py --config my_config.json --output-dir ../results/my_t
     },
     "boosttrack_default": {
       "class": "BoostTrack",
-      "name": "BoostTrack-Default",
+      "name": "BoostTrack-Default", 
       "params": {
         "reid_weights": "auto",
         "device": "auto",
@@ -148,15 +155,44 @@ python fair_mivolo_bench.py --config my_config.json --output-dir ../results/my_t
         "device": "auto",
         "half": false,
         "max_age": 300,
-        "inertia": 0.4,
+        "min_hits": 6,
+        "det_thresh": 0.6,
+        "min_box_area": 800,
+        "iou_threshold": 0.45,
         "use_ecc": false,
         "cmc_method": "None",
-        "min_hits": 3
+        "lambda_iou": 0.55,
+        "lambda_mhd": 0.25,
+        "lambda_shape": 0.2,
+        "dlo_boost_coef": 0.55,
+        "use_rich_s": true,
+        "use_sb": true,
+        "use_vt": true,
+        "with_reid": true
       },
       "description": "BoostTrack with optimized parameters for accuracy"
     }
+  },
+  "parameter_descriptions": {
+    "match_thresh": "Threshold for matching tracks between frames (0.0-1.0). Higher = stricter matching",
+    "track_thresh": "Confidence threshold for creating new tracks (0.0-1.0)",
+    "track_buffer": "Number of frames to keep lost tracks before deletion",
+    "proximity_thresh": "Distance threshold for spatial association (0.0-1.0)", 
+    "appearance_thresh": "ReID appearance similarity threshold (0.0-1.0)",
+    "half": "Use half precision (FP16) for faster inference on GPU",
+    "reid_weights": "Path to ReID model weights file",
+    "device": "Device to run tracker on (e.g. cuda, cpu)",
+    "det_thresh": "Detection confidence threshold for considering detections (0.0-1.0)",
+    "max_age": "Maximum number of frames to keep track alive without matching",
+    "min_hits": "Minimum number of detections before track is initialized",
+    "inertia": "Motion model weight for position prediction (0.0-1.0)",
+    "use_ecc": "Whether to use ECC (Enhanced Correlation Coefficient) for motion estimation",
+    "cmc_method": "Camera Motion Compensation method (None, ECC, or Sparse)",
+    "cmc_off": "Whether to disable Camera Motion Compensation",
+    "fuse_first_associate": "Whether to fuse appearance and motion information in first association",
+    "with_reid": "Whether to use ReID features for tracking"
   }
-}
+} 
 ```
 
 ## 📊 **Output Files**
