@@ -19,8 +19,10 @@ os.unsetenv("CUBLAS_WORKSPACE_CONFIG")
 parser = argparse.ArgumentParser(description='Fair MIVOLO Tracking Benchmark')
 parser.add_argument('--config', type=str, default='tracker_configs.json', 
                     help='Configuration file to use (default: tracker_configs.json)')
-parser.add_argument('--output-dir', type=str, default='../results/fair_mivolo_bench',
+parser.add_argument('--output-dir', type=str, default='../results/bench_ClipReID',
                     help='Output directory for results')
+parser.add_argument('--video', type=str, default='../2min.mp4',
+                    help='Path to input video file (default: ../2min.mp4)')
 args = parser.parse_args()
 
 
@@ -121,9 +123,22 @@ def convert_paths_to_strings(obj):
 
 # Configuration
 YOLO_WEIGHTS   = pathlib.Path('../weights/yolov8x_person_face.pt')
-REID_WEIGHTS   = pathlib.Path('../weights/reid/osnet_x1_0_msmt17.pt')
-VIDEO          = pathlib.Path('../2min.mp4')
+REID_WEIGHTS   = pathlib.Path('../weights/reid/MSMT17_clipreid_12x12sie_ViT-B-16_60.pth')
+VIDEO          = pathlib.Path(args.video)
 OUT_DIR        = pathlib.Path(args.output_dir); OUT_DIR.mkdir(parents=True, exist_ok=True)
+
+# Validate input files
+if not YOLO_WEIGHTS.exists():
+    print(f"❌ YOLO weights not found: {YOLO_WEIGHTS.absolute()}")
+    exit(1)
+
+if not REID_WEIGHTS.exists():
+    print(f"❌ ReID weights not found: {REID_WEIGHTS.absolute()}")
+    exit(1)
+
+if not VIDEO.exists():
+    print(f"❌ Video file not found: {VIDEO.absolute()}")
+    exit(1)
 
 # Load configuration from JSON file
 try:
@@ -144,8 +159,8 @@ except Exception as e:
     
     # Fallback to default configurations
     test_settings = {
-        "skip_frames": 3,
-        "conf_threshold": 0.4,
+        "skip_frames": 5,
+        "conf_threshold": 0.3,
         "iou_threshold": 0.5,
         "max_frames": None,
         "filter_faces": True,
@@ -204,6 +219,7 @@ for key, cfg in tracker_configs.items():
     }
 
 print(f"\n=== Fair MIVOLO Benchmark Configuration ===")
+print(f"Video file: {VIDEO}")
 print(f"Device: {device}")
 print(f"Half precision: {use_half}")
 print(f"Frame skipping: Every {SKIP_FRAMES} frames")
@@ -284,6 +300,9 @@ for test_num, tracker_key in enumerate(tracker_order, 1):
     
     last_tracks = []
 
+    mot_results_path = OUT_DIR / f'{safe_name}_mot.txt'
+    mot_results = []  # List to store all MOT results for this tracker
+
     while cap.isOpened():
         ok, frame = cap.read()
         frames += 1
@@ -291,7 +310,7 @@ for test_num, tracker_key in enumerate(tracker_order, 1):
         if MAX_FRAMES and frames > MAX_FRAMES: break
         
         # Process tracking only on selected frames
-        if frames % SKIP_FRAMES == 1:
+        if frames % SKIP_FRAMES == 0:
             processed_frames += 1
             
             # Get detections using MIVOLO-style detector
@@ -314,6 +333,18 @@ for test_num, tracker_key in enumerate(tracker_order, 1):
             # Update tracker
             try:
                 tracks = tracker.update(detections, frame)
+                tracks = tracker.update(detections, frame)
+                for track in tracks:
+                    if len(track) >= 7:
+                        x1, y1, x2, y2, track_id, conf, cls = track[:7]
+                        bb_left = x1
+                        bb_top = y1
+                        bb_width = x2 - x1
+                        bb_height = y2 - y1
+                        # Store as (id, frame, bb_left, bb_top, bb_width, bb_height, conf, cls)
+                        mot_results.append([
+                            int(track_id), processed_frames, bb_left, bb_top, bb_width, bb_height, conf, int(cls)
+                        ])
                 last_tracks = tracks
             except Exception as e:
                 print(f"Tracking error at frame {frames}: {e}")
@@ -347,7 +378,14 @@ for test_num, tracker_key in enumerate(tracker_order, 1):
 
     cap.release()
     writer.release()
-    
+    # Sort results: first by ID, then by frame
+    mot_results.sort(key=lambda x: (x[0], x[1]))  # (id, frame, ...)
+    with open(mot_results_path, 'w') as mot_results_file:
+        for id, frame, bb_left, bb_top, bb_width, bb_height, conf, cls in mot_results:
+            mot_results_file.write(
+                f"{frame},{id},{bb_left:.2f},{bb_top:.2f},{bb_width:.2f},{bb_height:.2f},{conf:.2f},{cls},1\n"
+            )
+    print(f"✅ MOT results saved to {mot_results_path}")
     total_time = time.time() - t0
     fps_processing = frames / total_time
     fps_detection = processed_frames / total_time
